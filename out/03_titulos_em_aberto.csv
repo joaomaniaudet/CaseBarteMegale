@@ -1,0 +1,4 @@
+﻿pode_cobrar;severidade;sistema_origem;documento;cliente;cnpj;unidade;tipo;vencimento;valor_face;saldo_em_aberto;ja_recebido;motivo
+NAO;CRITICO;omie;FAT-2026-0331;GRAO NOBRE COM LTDA;55.666.777/0001-44;NORTE;Indefinido;20/07/2026;31.250,00;31.250,00;;Possível duplicidade entre ERPs (ver alerta CAD-001). SUSPENDER COBRANÇA por até 48h e validar documento de origem, pedido/contrato e histórico do cadastro antes de concluir se a dívida é duplicada ou legítima.
+SIM;ALTO;protheus;NF 104560;Emporio Bela Vista Alimentos SA;22.333.444/0001-55;SP-Capital;Produto;16/07/2026;125.000,00;62.500,00;62.500,00;Saldo residual de pagamento parcial: recebido 62.500,00 de 125.000,00. Cobrar apenas o saldo.
+SIM;MEDIO;omie;FAT-2026-0341;NORTE PANIFICADOS EIRELI;44.555.666/0001-88;NORTE;Indefinido;28/07/2026;8.120,00;8.120,00;;Nenhum crédito identificado para este título (venc. 28/07/2026) no extrato analisado. Validar as demais contas bancárias e eventos de baixa antes de cobrar.

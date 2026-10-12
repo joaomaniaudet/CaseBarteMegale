@@ -1,0 +1,147 @@
+{
+  "volumetria": {
+    "titulos_em_aberto_entrada": 25,
+    "valor_titulos_entrada": "504892.50",
+    "movimentos_bancarios": 24,
+    "creditos": 21,
+    "valor_creditos": "380653.50"
+  },
+  "conciliacao": {
+    "creditos_conciliados": 19,
+    "creditos_nao_aplicados": 2,
+    "valor_aplicado": "325280.50",
+    "cobertura_de_creditos": 0.9725,
+    "cobertura_de_titulos": 0.6443,
+    "taxa_automatizavel_valor": 0.4266,
+    "por_tier_de_identidade": {
+      "ID_BANCARIO": {
+        "quantidade": 6,
+        "valor": "197870.00",
+        "confianca_media": 0.98
+      },
+      "CNPJ_TEXTO": {
+        "quantidade": 2,
+        "valor": "30788.00",
+        "confianca_media": 0.96
+      },
+      "NOME_FORTE": {
+        "quantidade": 6,
+        "valor": "103030.50",
+        "confianca_media": 0.842
+      },
+      "SO_VALOR": {
+        "quantidade": 5,
+        "valor": "38491.00",
+        "confianca_media": 0.59
+      }
+    },
+    "por_decisao": {
+      "AUTO_APLICAR": {
+        "quantidade": 9,
+        "valor": "162380.00"
+      },
+      "CONFIRMAR": {
+        "quantidade": 7,
+        "valor": "162578.50"
+      },
+      "INVESTIGAR": {
+        "quantidade": 3,
+        "valor": "45221.00"
+      }
+    },
+    "por_classe_de_valor": {
+      "EXATO": 13,
+      "AGREGADO": 1,
+      "RETENCAO": 1,
+      "MORA": 1,
+      "PARCIAL": 2,
+      "INEXPLICADO": 1
+    },
+    "trilha_de_passes": {
+      "1_id_bancario": 6,
+      "2_cnpj_texto": 2,
+      "3_nome": 6,
+      "4_ia": 0,
+      "5_so_valor": 5
+    }
+  },
+  "fechamento_caixa": {
+    "valor_caixa_validado_para_proposta": "162380.00",
+    "valor_caixa_em_analise_humana": "218273.50",
+    "valor_caixa_total": "380653.50",
+    "percentual_validado_para_proposta": 0.4266,
+    "percentual_em_analise_humana": 0.5734,
+    "creditos_validados_para_proposta": 9,
+    "creditos_em_analise_humana": 12,
+    "nota": "Caixa validado para proposta passou pelas travas de alta confiança; não representa baixa efetivada. Caixa em análise humana inclui CONFIRMAR, INVESTIGAR e créditos sem título."
+  },
+  "decomposicao_do_gap": {
+    "gap_aparente": "124239.00",
+    "total_em_aberto_ao_final": "179612.00",
+    "em_validacao_possivel_duplicidade": "31250.00",
+    "saldo_de_pagamento_parcial": "63000.00",
+    "sem_recebimento_identificado_no_extrato": "85362.00",
+    "percentual_sem_recebimento_identificado": 0.4753,
+    "leitura": "Do total de 179612.00 em aberto ao final, 85362.00 não encontrou recebimento no extrato analisado. Isso não prova inadimplência: a Vantara opera quatro bancos e o data pack contém apenas uma conta."
+  },
+  "alertas": {
+    "total": 8,
+    "por_severidade": {
+      "CRITICO": 3,
+      "ALTO": 2,
+      "MEDIO": 3,
+      "INFO": 0
+    },
+    "valor_em_risco_confirmado": "0.00",
+    "valor_exposicao_potencial": "50528.00",
+    "valor_sem_controle": "34117.82",
+    "valor_em_risco": "50528.00",
+    "grupos_de_exposicao": 7,
+    "nota": "valor_em_risco_confirmado = perda já materializada e comprovada. valor_exposicao_potencial = valor que pode ficar exposto se o alerta não for tratado. valor_sem_controle = valor que não é possível verificar com os dados disponíveis. Alertas sobre o mesmo dinheiro são contados uma vez por grupo."
+  },
+  "ia": {
+    "ativa": false,
+    "provedor": null,
+    "modelo": null,
+    "motivo_desligada": "desabilitada por configuração ou flag --sem-ia",
+    "chamadas": 0,
+    "acertos_cache": 0,
+    "abstencoes": 0,
+    "falhas": 0,
+    "erros": []
+  },
+  "saude": {
+    "conferencia_de_fechamento_ok": true,
+    "checagens": [
+      {
+        "nome": "titulos_conservados",
+        "descricao": "Soma dos títulos iniciais = valor vinculado na simulação + saldo em aberto. Falha aqui significa título perdido ou baixado duas vezes.",
+        "esperado": "504892.50",
+        "obtido": "504892.50",
+        "diferenca": "0.00",
+        "passou": true
+      },
+      {
+        "nome": "caixa_conciliado",
+        "descricao": "Créditos do extrato = valor vinculado na simulação - retenções candidatas + mora candidata + caixa não aplicado + créditos em investigação. Falha aqui significa dinheiro do banco sem destino explicado.",
+        "esperado": "380653.50",
+        "obtido": "380653.50",
+        "diferenca": "0.00",
+        "passou": true
+      }
+    ],
+    "drift": {
+      "cobertura_pp_vs_baseline": 7.25,
+      "automatizacao_pp_vs_baseline": -7.34,
+      "alertas": []
+    }
+  },
+  "avisos_de_ingestao": [
+    "01_contas_a_receber_protheus_estresse.csv: lido como utf-8-sig",
+    "01_contas_a_receber_protheus_estresse.csv linha 19: valor inválido/zerado, título ignorado",
+    "01_contas_a_receber_protheus_estresse.csv linha 23: valor inválido/zerado, título ignorado",
+    "02_titulos_unidade_norte_omie_estresse.csv: lido como utf-8-sig",
+    "03_extrato_bancario_estresse.csv: lido como utf-8-sig",
+    "04_caixa_de_entrada_contas_a_pagar_estresse.txt: lido como utf-8-sig"
+  ]
+}

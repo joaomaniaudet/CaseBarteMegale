@@ -1,0 +1,16 @@
+{
+  "name": "vantara-concilia-deck",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "build": "node build_deck.js",
+    "build:story": "node build_story_deck.js",
+    "build:case": "node build_case_deck.js"
+  },
+  "dependencies": {
+    "pptxgenjs": "4.0.0"
+  },
+  "overrides": {
+    "image-size": "2.0.3"
+  }
+}

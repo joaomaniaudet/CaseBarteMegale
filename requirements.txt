@@ -1,0 +1,22 @@
+# Mínimo para rodar o pipeline determinístico (sem IA):
+PyYAML>=6.0
+
+# Carrega .env automaticamente (chave de API da camada de IA)
+python-dotenv>=1.0.0
+
+# Camada de IA — opcional. Sem isso (ou sem ANTHROPIC_API_KEY) o pipeline roda
+# normalmente nos tiers determinísticos e manda os casos ambíguos para a fila
+# humana com o motivo registrado.
+anthropic>=0.40.0
+
+# Google Gemini
+google-genai>=1.0.0
+
+# xAI/Grok usa o cliente compatível da OpenAI
+openai>=1.0.0
+
+# Interface de demonstração local (streamlit run demo.py)
+streamlit>=1.40.0
+
+# Testes
+pytest>=8.0

@@ -1,0 +1,24 @@
+# Segredos e ambiente local
+.env
+.venv/
+
+# Caches e artefatos transitórios
+__pycache__/
+*.py[cod]
+.cache_ia/
+.pytest_cache/
+.DS_Store
+*.log
+
+# Dependências recompiláveis do PowerPoint
+node_modules/
+ppt/node_modules/
+
+# Execuções temporárias da interface. As saídas oficiais out/,
+# out_estresse/ e out_outubro_2026/ fazem parte da entrega.
+out_upload/
+out_debug/
+out_demo/
+
+# Pacotes gerados localmente
+dist/

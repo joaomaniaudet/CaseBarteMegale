@@ -1,0 +1,181 @@
+# ---------------------------------------------------------------------------
+# Regras de negócio e calibração do motor.
+#
+# Tudo que é POLÍTICA FINANCEIRA fica aqui, fora do código. O time de
+# controladoria da Vantara deve conseguir mexer nestes números sem abrir um PR.
+# Isso não é preciosismo: é o que faz a solução sobreviver ao primeiro mês em
+# que a Vantara mudar a multa de mora de 2% para 1,5%.
+# ---------------------------------------------------------------------------
+
+moeda: BRL
+tolerancia_centavos: 0.01
+
+# --- Eixo IDENTIDADE: quanta confiança cada forma de identificar o pagador merece
+confianca_identidade:
+  ID_BANCARIO: 0.99      # nosso_numero no campo documento do extrato
+  CNPJ_TEXTO: 0.95       # 14 dígitos achados no histórico em texto livre
+  NOME_FORTE: 0.88       # todos os tokens significativos do banco batem, >= 2 tokens
+  NOME_PARCIAL: 0.70     # bate, mas com 1 token só, ou cobertura parcial
+  IA: 0.85               # teto da confiança quando quem decidiu foi o LLM
+  SO_VALOR: 0.45         # nenhuma pista de pagador; casou apenas por valor
+
+# --- Eixo VALOR: ajuste de confiança conforme a explicação da diferença
+ajuste_valor:
+  EXATO: 0.05
+  AGREGADO: 0.00         # 1 crédito quitando N títulos (soma confere)
+  RETENCAO: -0.03        # chegou menos por imposto retido na fonte
+  MORA: -0.03            # chegou mais por multa/juros de atraso
+  PARCIAL: -0.05         # pagamento parcial, título fica com saldo
+  INEXPLICADO: -0.35     # diferença que nenhuma regra explica
+
+# --- Faixas de decisão
+decisao:
+  auto_aplicar_min: 0.90   # >= isto entra no arquivo de baixas propostas
+  revisar_min: 0.60        # entre revisar_min e auto_aplicar_min: analista confirma
+  # < revisar_min: fila de investigação, nunca proposto para baixa
+  # Bônus quando o título é o ÚNICO em aberto com aquele valor exato em toda a
+  # base. Em amostra pequena é evidência razoável; com 1.900 títulos/mês a
+  # colisão de valor aumenta, e é justamente por isso que o bônus é um número
+  # em arquivo de config e não uma constante no código.
+  bonus_unicidade: 0.15
+
+# Travas duras. Independem do score. Existem para que o CTO possa auditar o
+# limite do automático sem ler código.
+travas_auto_aplicar:
+  bloquear_se_valor_inexplicado: true
+  bloquear_se_empate_de_candidatos: true     # 2+ candidatos com score igual
+  bloquear_tier_so_valor: true               # casou só por valor nunca é automático
+  bloquear_se_decidido_por_ia: true          # IA propõe, humano aplica
+  # O data pack não traz contrato, documento fiscal nem política aprovada que
+  # provem retenção ou mora. Mesmo quando a aritmética fecha, esses casos são
+  # hipóteses operacionais e exigem validação da controladoria no piloto.
+  classes_que_exigem_confirmacao: [RETENCAO, MORA]
+  valor_maximo_automatico: 100000.00         # acima disso, olho humano sempre
+
+# --- Retenções na fonte reconhecidas (fração do valor de face do título)
+# Quando o título é de serviço e a diferença bate com uma destas faixas, surge
+# uma hipótese de retenção. No piloto ela sempre exige confirmação documental.
+retencoes:
+  tolerancia_relativa: 0.0015
+  faixas:
+    - {nome: "ISS 2%", fracao: 0.02, tipos: [Servico]}
+    - {nome: "ISS 3%", fracao: 0.03, tipos: [Servico]}
+    - {nome: "ISS 5%", fracao: 0.05, tipos: [Servico]}
+    - {nome: "IRRF 1,5%", fracao: 0.015, tipos: [Servico]}
+    - {nome: "PIS/COFINS/CSLL 4,65%", fracao: 0.0465, tipos: [Servico]}
+    - {nome: "INSS 11%", fracao: 0.11, tipos: [Servico]}
+
+# --- Mora: multa + juros por atraso
+mora:
+  multa_percentual: 0.02          # contratual
+  juros_mes_percentual: 0.01      # pro rata die
+  tolerancia_relativa: 0.004      # folga para arredondamento do boleto
+  excesso_maximo: 0.10            # acima de 10% a mais não é mora, é exceção
+
+# --- Agregação (1 crédito : N títulos)
+agregacao:
+  max_titulos_por_credito: 4
+  max_candidatos_avaliados: 14    # limite combinatório
+  janela_dias: 30                 # títulos do mesmo pagador nesta janela
+
+# --- Janela de data entre vencimento e crédito no banco
+janela_credito:
+  dias_antes: 10
+  dias_depois: 25
+
+# --- Matching de nome
+nome:
+  # Sufixos societários e palavras genéricas que não distinguem empresa.
+  # Removidos antes de comparar.
+  stopwords:
+    - LTDA
+    - LTD
+    - ME
+    - MEI
+    - EIRELI
+    - EI
+    - SA
+    - S/A
+    - EPP
+    - CIA
+    - COMPANHIA
+    - COMERCIO
+    - COM
+    - COMERCIAL
+    - DISTRIBUIDORA
+    - DIST
+    - INDUSTRIA
+    - IND
+    - E
+    - DE
+    - DA
+    - DO
+    - DAS
+    - DOS
+  # Prefixos que o banco grava no histórico e não dizem nada sobre o pagador
+  ruido_historico:
+    - LIQUIDACAO COBRANCA SIMPLES
+    - LIQUIDACAO COBRANCA
+    - PIX RECEBIDO
+    - PIX ENVIADO
+    - TED RECEBIDA
+    - TED RECEBIDO
+    - DOC RECEBIDO
+    - TRANSFERENCIA RECEBIDA
+    - DEPOSITO NAO IDENTIFICADO
+    - DEPOSITO
+    - CREDITO EM CONTA
+    - CNPJ
+    - CPF
+  min_tokens_nome_forte: 2
+  # O extrato do Itaú trunca o histórico em ~32 caracteres. O último token pode
+  # estar cortado no meio, então ele casa por prefixo em vez de igualdade.
+  ultimo_token_casa_por_prefixo: true
+  prefixo_minimo: 2
+
+# --- Detecção de possível duplicidade entre ERPs
+fantasma:
+  # Chave de colisão: mesma entidade + mesmo valor + vencimento dentro da folga
+  folga_vencimento_dias: 3
+  exigir_fontes_distintas: true
+
+# --- Contas a pagar
+contas_a_pagar:
+  # Reemissão: mesma entidade + mesmo nº de documento normalizado, cobranças
+  # com valores diferentes. Se já existe débito compatível no extrato, é
+  # candidato a pagamento em duplicidade.
+  janela_reemissao_dias: 45
+  tolerancia_debito_relativa: 0.005
+  # Acréscimo plausível de atualização de boleto (multa+juros). Acima disso,
+  # provavelmente é outra nota, não reemissão.
+  acrescimo_maximo_reemissao: 0.15
+
+# --- Observabilidade
+observabilidade:
+  # Baseline de cobertura. Se a execução do mês cair mais que o drift
+  # tolerado, o pipeline grita ANTES de a analista perceber.
+  baseline_cobertura_valor: 0.90
+  baseline_auto_aplicavel: 0.50
+  drift_tolerado_pp: 10.0
+
+# --- IA
+# Provedores suportados: anthropic (Claude), google (Gemini), xai (Grok).
+# "auto" detecta pela chave de API presente no ambiente.
+# Variáveis de ambiente por provedor:
+#   anthropic: ANTHROPIC_API_KEY
+#   google:    GOOGLE_API_KEY ou GEMINI_API_KEY
+#   xai:       XAI_API_KEY ou GROK_API_KEY
+ia:
+  # A distribuição atual instala o SDK Anthropic. Outros provedores continuam
+  # suportados pelo adapter, mas exigem instalar o SDK correspondente.
+  provedor: auto               # auto | anthropic | google | xai
+  modelo: null                # null = usa o padrão do provedor
+  max_tokens: 1200
+  temperatura: 0.0
+  habilitada: true            # pode ser desligada por flag de CLI também
+  cache: true
+  # A IA nunca recebe o universo inteiro de títulos. Ela só ranqueia candidatos
+  # que a camada determinística já selecionou. Isso limita alucinação por
+  # construção, não por instrução no prompt.
+  max_candidatos_no_prompt: 8
+  score_minimo_aceito: 0.6
