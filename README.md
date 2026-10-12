@@ -429,5 +429,3 @@ oficiais, o código, os testes, as configurações, os fluxos e as apresentaçõ
 
 - `prompts/` contém registros de contexto e transcripts consolidados; eles não substituem um export bruto de uma ferramenta externa, caso esse export seja exigido formalmente.
 - `MOMENTOS.md` é uma retrospectiva editada e não substitui um transcript bruto.
-- O vídeo de até quatro minutos ainda precisa ser gravado.
-- `MENSAGEM_CTO.md` é um rascunho coerente com a arquitetura proposta; falta inserir o link e os tempos do vídeo antes do envio.
